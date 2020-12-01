@@ -8,11 +8,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let solution = match day_id.as_str() {
             "day1:part1" => {
                 let s = fs::read_to_string("resources/day1.txt")?;
-                day1::part_one_solution(&s)
+                day1::part_one_solution(&s, 2020)
             }
             "day1:part2" => {
                 let s = fs::read_to_string("resources/day1.txt")?;
-                day1::part_two_solution(&s)
+                day1::part_two_solution(&s, 2020)
             }
             _ => return Err("Unknown day:part ...".into()),
         };
