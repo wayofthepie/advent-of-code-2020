@@ -1,47 +1,77 @@
+use nom::{
+    bytes::complete::{is_not, tag, take_till},
+    character::complete::multispace0,
+    combinator::map_res,
+    sequence::delimited,
+    IResult,
+};
 use std::str::FromStr;
 
-use nom::{
-    bytes::complete::is_not, bytes::complete::tag, bytes::complete::take_till,
-    character::complete::multispace0, combinator::map_res, error::ParseError, multi::many1,
-    sequence::delimited, IResult,
-};
-
-pub struct Details {
-    min: usize,
-    max: usize,
+struct Details<'details> {
+    first: usize,
+    second: usize,
     letter: char,
-    password: String,
+    password: &'details str,
 }
 
-pub fn part_one(s: &str) -> IResult<&str, usize> {
-    let (rem, details) = many1(ws(parse_line))(s)?;
-    let correct_passwords = details.iter().fold(0, |correct, details| {
-        let count = details.password.chars().fold(0, |count, ch| {
-            if ch == details.letter {
-                count + 1
-            } else {
-                count
-            }
-        });
-        if count >= details.min && count <= details.max {
-            correct + 1
-        } else {
-            correct
-        }
-    });
-    Ok((rem, correct_passwords))
+pub mod part_one {
+    use super::{parse_line, ws};
+    use nom::{multi::many1, IResult};
+
+    pub fn solution(s: &str) -> IResult<&str, usize> {
+        let (rem, details) = many1(ws(parse_line))(s)?;
+        let correct_passwords = details
+            .iter()
+            .filter(|details| {
+                let count = details
+                    .password
+                    .chars()
+                    .filter(|&c| c == details.letter)
+                    .count();
+                (details.first..=details.second).contains(&count)
+            })
+            .count();
+        Ok((rem, correct_passwords))
+    }
+}
+
+pub mod part_two {
+    use super::{parse_line, ws, Details};
+    use nom::{multi::many1, IResult};
+
+    pub fn solution(s: &str) -> IResult<&str, usize> {
+        let (rem, details) = many1(ws(parse_line))(s)?;
+        let correct_passwords = details
+            .into_iter()
+            .filter(
+                |Details {
+                     first,
+                     second,
+                     letter,
+                     password,
+                 }| {
+                    let tuple = (
+                        password.chars().nth(first - 1),
+                        password.chars().nth(second - 1),
+                    );
+                    matches!(tuple, (f, s) if (f == Some(*letter)) != (s == Some(*letter)))
+                },
+            )
+            .count();
+        Ok((rem, correct_passwords))
+    }
 }
 
 fn parse_line(line: &str) -> IResult<&str, Details> {
-    let (rem, min) = parse_to_and_eat(line, '-')?;
-    let (rem, max) = parse_to_and_eat(rem, ' ')?;
+    let (rem, first) = parse_to_and_eat(line, '-')?;
+    let (rem, second) = parse_to_and_eat(rem, ' ')?;
     let (rem, letter) = parse_to_and_eat(rem, ':')?;
     let (rem, password) = ws(is_not_newline())(rem)?;
     let details = Details {
-        min,
-        max,
+        first,
+        second,
         letter,
-        password: password.to_owned(),
+        password,
     };
     Ok((rem, details))
 }
@@ -58,16 +88,13 @@ fn str_to<F: FromStr>(s: &str) -> Result<F, F::Err> {
     s.parse::<F>()
 }
 
-fn is_not_newline<'a, E: ParseError<&'a str>>(
-) -> impl FnMut(&'a str) -> IResult<&'a str, &'a str, E> {
+fn is_not_newline<'a>() -> impl FnMut(&'a str) -> IResult<&'a str, &'a str> {
     is_not("\r\n")
 }
 
-fn ws<'a, F: 'a, O, E: ParseError<&'a str>>(
-    inner: F,
-) -> impl FnMut(&'a str) -> IResult<&'a str, O, E>
+fn ws<'a, F: 'a, O>(inner: F) -> impl FnMut(&'a str) -> IResult<&'a str, O>
 where
-    F: FnMut(&'a str) -> IResult<&'a str, O, E>,
+    F: FnMut(&'a str) -> IResult<&'a str, O>,
 {
     delimited(multispace0, inner, multispace0)
 }
@@ -76,12 +103,21 @@ where
 mod test {
     use std::fs;
 
-    use super::part_one;
+    use super::{part_one, part_two};
 
     #[test]
-    fn should_parse_without_error() {
+    fn part_one_should_parse_without_error() {
         let s = fs::read_to_string("resources/day2.txt").unwrap();
-        let result = part_one(&s).unwrap();
-        assert_eq!(result.1, 396);
+        let (rem, result) = part_one::solution(&s).unwrap();
+        assert_eq!(result, 396);
+        assert!(rem.is_empty())
+    }
+
+    #[test]
+    fn part_two_should_parse_without_error() {
+        let s = fs::read_to_string("resources/day2.txt").unwrap();
+        let (rem, result) = part_two::solution(&s).unwrap();
+        assert_eq!(result, 428);
+        assert!(rem.is_empty())
     }
 }

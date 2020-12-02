@@ -17,7 +17,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
             "day2:part1" => {
                 let s = fs::read_to_string("resources/day2.txt")?;
-                let (_, num) = day2::part_one(&s).map_err(|e| e.to_string())?;
+                let (_, num) = day2::part_one::solution(&s).map_err(|e| e.to_string())?;
+                num
+            }
+            "day2:part2" => {
+                let s = fs::read_to_string("resources/day2.txt")?;
+                let (_, num) = day2::part_two::solution(&s).map_err(|e| e.to_string())?;
                 num
             }
             _ => return Err("Unknown day:part ...".into()),
