@@ -8,6 +8,7 @@ edition = "2018"
 
 [dev-dependencies]
 criterion = "0.3.3"
+rand = "0.7.3"
 
 [[bench]]
 name = "day1"
