@@ -12,3 +12,6 @@ criterion = "0.3.3"
 [[bench]]
 name = "day1"
 harness = false
+
+[dependencies]
+nom = "6.0.1"
