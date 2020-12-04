@@ -38,6 +38,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 let (_, valid) = day4::part_one::solution(&s).map_err(|e| e.to_string())?;
                 valid
             }
+            "day4:part3" => {
+                let s = fs::read_to_string("resources/day4.txt")?;
+                let (_, valid) = day4::part_two::solution(&s).map_err(|e| e.to_string())?;
+                valid
+            }
             _ => return Err("Unknown day:part ...".into()),
         };
         println!("Solution to {} is {}", day_id, solution);
