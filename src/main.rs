@@ -1,7 +1,6 @@
 use std::fs;
 
-use aoc2020::{day1, day3};
-use aoc2020::{day2, day4};
+use aoc2020::{day1, day2, day3, day4, day5};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = std::env::args().skip(1).collect::<Vec<String>>();
@@ -38,10 +37,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 let (_, valid) = day4::part_one::solution(&s).map_err(|e| e.to_string())?;
                 valid
             }
-            "day4:part3" => {
+            "day4:part2" => {
                 let s = fs::read_to_string("resources/day4.txt")?;
                 let (_, valid) = day4::part_two::solution(&s).map_err(|e| e.to_string())?;
                 valid
+            }
+            "day5:part1" => {
+                let s = fs::read_to_string("resources/day5.txt")?;
+                day5::part_one::solution(&s)
             }
             _ => return Err("Unknown day:part ...".into()),
         };
