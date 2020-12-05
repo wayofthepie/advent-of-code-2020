@@ -1,4 +1,6 @@
 pub mod part_one {
+    use super::compute_position;
+
     pub fn solution(input: &str) -> usize {
         input
             .lines()
@@ -11,23 +13,11 @@ pub mod part_one {
             .max()
             .unwrap_or(0)
     }
-
-    fn compute_position(definition: &str, left: char, min: u8, max: u8) -> u8 {
-        definition
-            .chars()
-            .fold((min, max), |(min, max), letter| {
-                let mid = min + ((max - min) / 2);
-                if letter == left {
-                    (min, mid)
-                } else {
-                    (mid + 1, max)
-                }
-            })
-            .0
-    }
 }
 
 pub mod part_two {
+    use super::compute_position;
+
     pub fn solution(input: &str) -> usize {
         let mut ids = input
             .lines()
@@ -39,27 +29,26 @@ pub mod part_two {
             })
             .collect::<Vec<usize>>();
         ids.sort_unstable();
-        for window in ids.windows(2) {
-            if window[0] + 1 < window[1] {
-                return window[0] + 1;
-            }
-        }
-        0
+        ids.windows(2)
+            .find(|window| window[0] + 1 < window[1])
+            .map(|window| window[0])
+            .unwrap_or(0)
+            + 1
     }
+}
 
-    fn compute_position(definition: &str, left: char, min: u8, max: u8) -> u8 {
-        definition
-            .chars()
-            .fold((min, max), |(min, max), letter| {
-                let mid = min + ((max - min) / 2);
-                if letter == left {
-                    (min, mid)
-                } else {
-                    (mid + 1, max)
-                }
-            })
-            .0
-    }
+fn compute_position(definition: &str, left: char, min: u8, max: u8) -> u8 {
+    definition
+        .chars()
+        .fold((min, max), |(min, max), letter| {
+            let mid = min + ((max - min) / 2);
+            if letter == left {
+                (min, mid)
+            } else {
+                (mid + 1, max)
+            }
+        })
+        .0
 }
 
 #[cfg(test)]
@@ -76,6 +65,6 @@ mod test {
     #[test]
     fn part_two_should_solve() {
         let s = fs::read_to_string("resources/day5.txt").unwrap();
-        assert_eq!(998, part_two::solution(&s));
+        assert_eq!(676, part_two::solution(&s));
     }
 }
