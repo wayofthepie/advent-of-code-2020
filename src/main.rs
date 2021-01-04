@@ -46,7 +46,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 let s = fs::read_to_string("resources/day5.txt")?;
                 day5::part_one::solution(&s).to_string()
             }
-            // TODO ahhh got busy for day 6/7, will come back
+            // TODO got busy for day 6/7, will come back
             "day8:part1" => {
                 let s = fs::read_to_string("resources/day8.txt")?;
                 day8::part_one::solution(&s)?.to_string()
